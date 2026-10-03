@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>無聲的 IEP —— 教育現場聲音收集計畫</title>
+<meta name="description" content="傾聽教育現場的真聲，為每一個孩子找到發聲的位置。">
+<meta name="theme-color" content="#FAF7F2">
+<style>
+  :root {
+    --sun: #F6B352;
+    --oat: #FAF7F2;
+    --ink: #383330;
+    --coral: #E87A5D;
+    --sage: #8EB897;
+    --card: #FFFFFF;
+    --glow: 0 10px 25px -5px rgba(246, 179, 82, 0.15);
+    --glow-strong: 0 14px 30px -6px rgba(246, 179, 82, 0.3);
+    --font-rounded: ui-rounded, "SF Pro Rounded", "jf-openhuninn-2.0", "jf-openhuninn", "Hiragino Maru Gothic ProN",
+                    "M PLUS Rounded 1c", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font-rounded);
+    color: var(--ink);
+    background: #F1ECE3;
+    line-height: 1.7;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; border-radius: 12px; }
+
+  /* ---------- App shell ---------- */
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--oat);
+    position: relative;
+    box-shadow: 0 0 60px rgba(56, 51, 48, 0.08);
+  }
+
+  /* ---------- Logo ---------- */
+  .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: 0.04em; }
+  .logo svg { width: 26px; height: 26px; flex: none; }
+
+  /* ---------- State 1: Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 24px calc(28px + env(safe-area-inset-bottom));
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 24%;
+    width: 520px; height: 520px;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(246,179,82,0.32), rgba(246,179,82,0));
+    pointer-events: none;
+  }
+  .hero > * { position: relative; }
+  .hero-art { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8px 0; min-height: 260px; }
+  .hero-art svg { width: 100%; max-width: 340px; height: auto; overflow: visible; }
+  .circle-ring { transform-origin: 170px 150px; animation: sway 14s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+
+  .hero-title {
+    font-size: clamp(1.9rem, 8.2vw, 2.35rem);
+    line-height: 1.3;
+    font-weight: 800;
+    margin: 0 0 12px;
+    letter-spacing: 0.02em;
+  }
+  .hero-sub { margin: 0 0 28px; color: rgba(56,51,48,0.74); font-size: 1rem; font-style: italic; }
+
+  .cta-wrap { position: relative; }
+  .cta-wrap::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 999px;
+    background: var(--sun);
+    opacity: 0;
+    animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes ping {
+    0%   { transform: scale(1);    opacity: 0.55; }
+    70%, 100% { transform: scale(1.12, 1.45); opacity: 0; }
+  }
+  .cta {
+    position: relative;
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 18px 24px;
+    background: var(--sun);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    box-shadow: var(--glow-strong);
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  .cta:hover { box-shadow: 0 16px 34px -6px rgba(246,179,82,0.45); }
+  .cta:active { transform: scale(0.95); }
+  .cta .arrow { display: inline-block; margin-left: 4px; animation: nudge 2.5s ease-in-out infinite; }
+  @keyframes nudge { 0%, 60%, 100% { transform: translateY(0); } 80% { transform: translateY(4px); } }
+
+  /* ---------- State 2: Main ---------- */
+  .site-header {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px;
+    background: rgba(250,247,242,0.9);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(56,51,48,0.07);
+  }
+  .site-header .logo { font-size: 0.98rem; }
+  .about-btn {
+    border: 1.5px solid var(--sun);
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: transform .15s ease, background .2s ease;
+  }
+  .about-btn:hover { background: #FFF6E3; }
+  .about-btn:active { transform: scale(0.95); }
+
+  main { padding: 28px 20px 8px; scroll-margin-top: 56px; }
+  .question {
+    margin: 0 0 24px;
+    padding: 22px 20px;
+    background: var(--card);
+    border-radius: 24px;
+    border-left: 6px solid var(--sun);
+    box-shadow: var(--glow);
+  }
+  .question h1 { margin: 0; font-size: 1.32rem; line-height: 1.55; font-weight: 800; }
+  .question p { margin: 8px 0 0; font-size: 0.88rem; color: rgba(56,51,48,0.62); }
+
+  .cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    --tint: #fff;
+    display: block;
+    text-decoration: none;
+    background: var(--tint);
+    border: 1.5px solid rgba(56,51,48,0.07);
+    border-radius: 24px;
+    padding: 20px 20px 18px;
+    box-shadow: var(--glow);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card:hover { transform: scale(1.02); box-shadow: var(--glow-strong); border-color: var(--sun); }
+  .card:active { transform: scale(0.97); }
+  .card-cat {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--coral);
+    margin-bottom: 6px;
+  }
+  .card-title { margin: 0 0 12px; font-size: 1.12rem; line-height: 1.55; font-weight: 800; }
+  .card-go { margin: 0; font-size: 0.88rem; font-weight: 700; color: rgba(56,51,48,0.7); }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  footer { padding: 28px 24px calc(36px + env(safe-area-inset-bottom)); text-align: center; font-size: 0.8rem; color: rgba(56,51,48,0.5); }
+
+  /* ---------- Modals ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: rgba(56,51,48,0.45);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    opacity: 0; visibility: hidden;
+    transition: opacity .25s ease, visibility .25s;
+  }
+  .overlay.open { opacity: 1; visibility: visible; }
+  .modal {
+    width: 100%; max-width: 360px;
+    background: var(--card);
+    border-radius: 28px;
+    padding: 32px 26px 26px;
+    text-align: center;
+    box-shadow: 0 24px 60px -12px rgba(56,51,48,0.35);
+    transform: translateY(14px) scale(0.96);
+    transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .overlay.open .modal { transform: none; }
+  .modal h2 { margin: 14px 0 8px; font-size: 1.3rem; line-height: 1.45; font-weight: 800; }
+  .modal p { margin: 0; color: rgba(56,51,48,0.8); }
+  .modal strong { color: var(--coral); }
+
+  .heart { width: 76px; height: 76px; margin: 0 auto; position: relative; display: grid; place-items: center; }
+  .heart::before {
+    content: ""; position: absolute; inset: -10px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(246,179,82,0.45), rgba(246,179,82,0));
+    animation: glow 2s ease-in-out infinite;
+  }
+  .heart svg { width: 54px; height: 54px; position: relative; animation: beat 1.5s ease-in-out infinite; }
+  @keyframes glow { 50% { transform: scale(1.2); opacity: .7; } }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(1); } }
+
+  .progress { height: 6px; border-radius: 999px; background: #F3EBDD; overflow: hidden; margin: 22px 0 16px; }
+  .progress i { display: block; height: 100%; width: 0; background: var(--sun); border-radius: inherit; }
+  .overlay.open .progress i { animation: fill 1.5s linear forwards; }
+  @keyframes fill { to { width: 100%; } }
+
+  .fallback { font-size: 0.85rem; font-style: italic; color: rgba(56,51,48,0.7); text-underline-offset: 3px; }
+  .cancel {
+    display: block; margin: 14px auto 0; border: 0; background: none;
+    font-size: 0.82rem; color: rgba(56,51,48,0.5); padding: 6px 10px;
+  }
+
+  .about-modal { text-align: left; }
+  .about-modal h2 { text-align: center; }
+  .about-modal p + p { margin-top: 12px; }
+  .about-modal .cta { margin-top: 22px; padding: 14px 24px; box-shadow: var(--glow); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .overlay.open .progress i { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ State 1: Splash / Hero ============ -->
+  <section class="hero" id="hero" aria-labelledby="hero-title">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 29C16 29 5 22.5 5 12.5C5 7 9.5 3 16 3C22.5 3 27 7 27 12.5C27 22.5 16 29 16 29Z" fill="#8EB897"/>
+        <path d="M16 8V24" stroke="#FAF7F2" stroke-width="2" stroke-linecap="round"/>
+        <path d="M8.5 17C11 15 13.5 16.5 16 14.5C18.5 12.5 21 14 23.5 12" stroke="#FAF7F2" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      無聲的 IEP
+    </div>
+
+    <div class="hero-art" role="img" aria-label="一群大人手牽著手，圍成一圈，守護著中間的孩子">
+      <svg viewBox="0 0 340 300" fill="none">
+        <!-- soft sun -->
+        <circle cx="170" cy="150" r="118" fill="#F6B352" opacity="0.16"/>
+        <circle cx="170" cy="150" r="82" fill="#F6B352" opacity="0.2"/>
+        <!-- ring of adults -->
+        <g class="circle-ring">
+          <!-- joined hands (arcs between figures) -->
+          <g stroke="#383330" stroke-width="3" stroke-linecap="round" opacity="0.75">
+            <path d="M118 62 Q170 40 222 62"/>
+            <path d="M242 84 Q270 130 262 176"/>
+            <path d="M244 214 Q214 252 170 254"/>
+            <path d="M126 250 Q86 230 76 188"/>
+            <path d="M72 148 Q74 104 100 74"/>
+          </g>
+          <!-- adult 1: top -->
+          <g transform="translate(170 48)">
+            <path d="M-20 34 C-20 12 20 12 20 34 Z" fill="#E87A5D"/>
+            <circle cx="0" cy="-2" r="14" fill="#F7D9BF"/>
+            <path d="M-14 -4 C-14 -20 14 -20 14 -4 C8 -10 -8 -10 -14 -4 Z" fill="#383330"/>
+          </g>
+          <!-- adult 2: right -->
+          <g transform="translate(254 112)">
+            <path d="M-20 34 C-20 12 20 12 20 34 Z" fill="#8EB897"/>
+            <circle cx="0" cy="-2" r="14" fill="#F2CBA8"/>
+            <path d="M-14 -2 C-16 -22 16 -22 14 -2 C10 -12 -10 -12 -14 -2 Z" fill="#5A4A42"/>
+          </g>
+          <!-- adult 3: bottom right -->
+          <g transform="translate(226 226)">
+            <path d="M-20 34 C-20 12 20 12 20 34 Z" fill="#F6B352"/>
+            <circle cx="0" cy="-2" r="14" fill="#F7D9BF"/>
+            <circle cx="0" cy="-17" r="7" fill="#383330"/>
+            <path d="M-14 -4 C-14 -20 14 -20 14 -4 C8 -10 -8 -10 -14 -4 Z" fill="#383330"/>
+          </g>
+          <!-- adult 4: bottom left -->
+          <g transform="translate(114 226)">
+            <path d="M-20 34 C-20 12 20 12 20 34 Z" fill="#8EB897"/>
+            <circle cx="0" cy="-2" r="14" fill="#E9BE9B"/>
+            <path d="M-15 2 C-18 -22 18 -22 15 2 C14 -8 -14 -8 -15 2 Z" fill="#3E322D"/>
+          </g>
+          <!-- adult 5: left -->
+          <g transform="translate(86 112)">
+            <path d="M-20 34 C-20 12 20 12 20 34 Z" fill="#E87A5D"/>
+            <circle cx="0" cy="-2" r="14" fill="#F7D9BF"/>
+            <path d="M-14 -4 C-14 -20 14 -20 14 -4 C8 -10 -8 -10 -14 -4 Z" fill="#7A5C48"/>
+          </g>
+        </g>
+        <!-- child at the center -->
+        <g transform="translate(170 150)">
+          <circle cx="0" cy="6" r="44" fill="#FFFFFF" opacity="0.7"/>
+          <path d="M-15 38 C-15 16 15 16 15 38 Z" fill="#F6B352"/>
+          <circle cx="0" cy="4" r="14" fill="#F7D9BF"/>
+          <path d="M-14 2 C-14 -14 14 -14 14 2 C8 -4 -8 -4 -14 2 Z" fill="#383330"/>
+          <circle cx="-5" cy="6" r="1.6" fill="#383330"/>
+          <circle cx="5" cy="6" r="1.6" fill="#383330"/>
+          <path d="M-3.5 11 Q0 14 3.5 11" stroke="#E87A5D" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <div>
+      <h1 class="hero-title" id="hero-title">讓獨特被聽見，<br>讓參與無界限</h1>
+      <p class="hero-sub">傾聽教育現場的真聲，為每一個孩子找到發聲的位置</p>
+      <div class="cta-wrap">
+        <button class="cta" id="cta" type="button">探索教育現場的聲音 <span class="arrow" aria-hidden="true">↓</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ State 2: Question + Scenario Cards ============ -->
+  <header class="site-header">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 29C16 29 5 22.5 5 12.5C5 7 9.5 3 16 3C22.5 3 27 7 27 12.5C27 22.5 16 29 16 29Z" fill="#8EB897"/>
+        <path d="M16 8V24" stroke="#FAF7F2" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      無聲的 IEP
+    </div>
+    <button class="about-btn" id="aboutBtn" type="button" aria-haspopup="dialog">專案理念</button>
+  </header>
+
+  <main id="main">
+    <div class="question reveal">
+      <h1>老師，在教育現場，您覺得最常遇到的困難是什麼？</h1>
+      <p>請選擇最貼近您經驗的情境，填寫對應的專題問卷。</p>
+    </div>
+
+    <ul class="cards" id="cards"></ul>
+  </main>
+
+  <footer>無聲的 IEP —— 教育現場聲音收集計畫</footer>
+</div>
+
+<!-- ============ State 3: Transition Modal ============ -->
+<div class="overlay" id="goOverlay" role="dialog" aria-modal="true" aria-labelledby="goTitle" aria-hidden="true">
+  <div class="modal">
+    <div class="heart" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11.2C4 6.4 6.3 4.5 8.7 4.5c1.4 0 2.6.7 3.3 1.8.7-1.1 1.9-1.8 3.3-1.8C17.7 4.5 20 6.4 20 9.8 20 15.8 12 21 12 21Z" fill="#E87A5D"/></svg>
+    </div>
+    <h2 id="goTitle">感謝您願意為現場發聲！</h2>
+    <p>正在為您前往 <strong id="goCategory"></strong> 專題問卷...</p>
+    <div class="progress" aria-hidden="true"><i></i></div>
+    <a class="fallback" id="goLink" href="#" target="_blank" rel="noopener">若未自動跳轉，請點此直接開啟</a>
+    <button class="cancel" id="goCancel" type="button">先不用了，返回</button>
+  </div>
+</div>
+
+<!-- About modal -->
+<div class="overlay" id="aboutOverlay" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-hidden="true">
+  <div class="modal about-modal">
+    <h2 id="aboutTitle">為什麼叫「無聲的 IEP」？</h2>
+    <p>IEP 會議應該有學生、家長與各專業夥伴一起參與。但在現場，學生常被打斷、被代言，真正的聲音留在會議桌之外。</p>
+    <p>本計畫透過五份專題問卷，收集教育現場老師的真實經驗，讓每一個孩子都能在 IEP 裡找到自己的位置。</p>
+    <button class="cta" id="aboutClose" type="button">我知道了</button>
+  </div>
+</div>
+
+<script>
+  // ---------- Data (replace the FORM_3 / FORM_4 / FORM_5 URLs with the real forms) ----------
+  const SCENARIOS = [
+    {
+      category: "家長溝通與學生權益",
+      title: "家長低估孩子，阻斷學生參與會議的權利",
+      tint: "#FFF9E6",
+      url: "https://forms.gle/WLMCo3hrBZdV6Brq8"
+    },
+    {
+      category: "普特合作與跨專業融合",
+      title: "普通班老師只看成績，SLP 的策略被視為負擔",
+      tint: "#F3F8F2",
+      url: "https://docs.google.com/forms/d/e/1FAIpQLSe0dK9x84pJ5xrin_wcdZBarwEFw9FWfgXNa5Gutw_f2E3vgg/viewform?usp=header"
+    },
+    {
+      category: "資源班老師現場聲量",
+      title: "資源班老師被兩方夾擊，難以發揮專業",
+      tint: "#FFF5F2",
+      url: "https://docs.google.com/forms/d/e/FORM_3/viewform?utm_source=webapp&utm_medium=card_3"
+    },
+    {
+      category: "IEP 會議學生參與度",
+      title: "學生一再被打斷，形成「無聲的 IEP」",
+      tint: "#F2F7FF",
+      url: "https://docs.google.com/forms/d/e/FORM_4/viewform?utm_source=webapp&utm_medium=card_4"
+    },
+    {
+      category: "學生真實需求評估",
+      title: "焦點落在「大人的期待」，忽略學生真實能力",
+      tint: "#FAF0F8",
+      url: "https://docs.google.com/forms/d/e/FORM_5/viewform?utm_source=webapp&utm_medium=card_5"
+    }
+  ];
+  const REDIRECT_DELAY = 1500;
+
+  // ---------- Render cards ----------
+  const cardsEl = document.getElementById("cards");
+  SCENARIOS.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.className = "reveal";
+    li.style.transitionDelay = (i % 2) * 60 + "ms";
+    const a = document.createElement("a");
+    a.className = "card";
+    a.href = s.url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.style.setProperty("--tint", s.tint);
+    a.dataset.index = i;
+    a.innerHTML =
+      '<span class="card-cat">【' + s.category + '】</span>' +
+      '<h2 class="card-title">' + s.title + '</h2>' +
+      '<p class="card-go">進入「' + s.category + '」專題問卷 →</p>';
+    li.appendChild(a);
+    cardsEl.appendChild(li);
+  });
+
+  // ---------- Smooth scroll CTA (click or first scroll gesture) ----------
+  const main = document.getElementById("main");
+  document.getElementById("cta").addEventListener("click", () => {
+    main.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- Fade in on scroll ----------
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  // ---------- Overlay helpers ----------
+  let lastFocus = null;
+  function openOverlay(el) {
+    lastFocus = document.activeElement;
+    el.classList.add("open");
+    el.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+  function closeOverlay(el) {
+    el.classList.remove("open");
+    el.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (lastFocus) lastFocus.focus({ preventScroll: true });
+  }
+
+  // ---------- State 3: transition modal ----------
+  const goOverlay = document.getElementById("goOverlay");
+  const goLink = document.getElementById("goLink");
+  let redirectTimer = null;
+
+  function startRedirect(scenario) {
+    document.getElementById("goCategory").textContent = "【" + scenario.category + "】";
+    goLink.href = scenario.url;
+    // restart the progress animation
+    const bar = goOverlay.querySelector(".progress i");
+    bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
+    openOverlay(goOverlay);
+    goLink.focus({ preventScroll: true });
+    clearTimeout(redirectTimer);
+    redirectTimer = setTimeout(() => {
+      // If the browser blocks the pop-up, the fallback link stays available.
+      window.open(scenario.url, "_blank", "noopener");
+      closeOverlay(goOverlay);
+    }, REDIRECT_DELAY);
+  }
+  function cancelRedirect() {
+    clearTimeout(redirectTimer);
+    closeOverlay(goOverlay);
+  }
+
+  cardsEl.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    e.preventDefault();
+    startRedirect(SCENARIOS[Number(card.dataset.index)]);
+  });
+  document.getElementById("goCancel").addEventListener("click", cancelRedirect);
+  goLink.addEventListener("click", () => { clearTimeout(redirectTimer); setTimeout(() => closeOverlay(goOverlay), 300); });
+  goOverlay.addEventListener("click", (e) => { if (e.target === goOverlay) cancelRedirect(); });
+
+  // ---------- About modal ----------
+  const aboutOverlay = document.getElementById("aboutOverlay");
+  document.getElementById("aboutBtn").addEventListener("click", () => {
+    openOverlay(aboutOverlay);
+    document.getElementById("aboutClose").focus({ preventScroll: true });
+  });
+  document.getElementById("aboutClose").addEventListener("click", () => closeOverlay(aboutOverlay));
+  aboutOverlay.addEventListener("click", (e) => { if (e.target === aboutOverlay) closeOverlay(aboutOverlay); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (goOverlay.classList.contains("open")) cancelRedirect();
+    else if (aboutOverlay.classList.contains("open")) closeOverlay(aboutOverlay);
+  });
+</script>
+</body>
+</html>
