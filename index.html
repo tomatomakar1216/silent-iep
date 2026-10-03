@@ -228,6 +228,8 @@
     font-size: 0.82rem; color: rgba(56,51,48,0.5); padding: 6px 10px;
   }
 
+  .modal [hidden] { display: none; }
+
   .about-modal { text-align: left; }
   .about-modal h2 { text-align: center; }
   .about-modal p + p { margin-top: 12px; }
@@ -355,7 +357,8 @@
       <svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11.2C4 6.4 6.3 4.5 8.7 4.5c1.4 0 2.6.7 3.3 1.8.7-1.1 1.9-1.8 3.3-1.8C17.7 4.5 20 6.4 20 9.8 20 15.8 12 21 12 21Z" fill="#E87A5D"/></svg>
     </div>
     <h2 id="goTitle">感謝您願意為現場發聲！</h2>
-    <p>正在為您前往 <strong id="goCategory"></strong> 專題問卷...</p>
+    <p id="goStatus">正在為您前往 <strong id="goCategory"></strong> 專題問卷...</p>
+    <p id="goFail" hidden>好像沒有自動跳轉，請點下方連結開啟。</p>
     <div class="progress" aria-hidden="true"><i></i></div>
     <a class="fallback" id="goLink" href="#" target="_blank" rel="noopener">若未自動跳轉，請點此直接開啟</a>
     <button class="cancel" id="goCancel" type="button">先不用了，返回</button>
@@ -459,27 +462,42 @@
   // ---------- State 3: transition modal ----------
   const goOverlay = document.getElementById("goOverlay");
   const goLink = document.getElementById("goLink");
+  const goStatus = document.getElementById("goStatus");
+  const goFail = document.getElementById("goFail");
   let redirectTimer = null;
+  let failTimer = null;
+
+  function hideGo() {
+    clearTimeout(redirectTimer);
+    clearTimeout(failTimer);
+    closeOverlay(goOverlay);
+  }
 
   function startRedirect(scenario) {
     document.getElementById("goCategory").textContent = "【" + scenario.category + "】";
     goLink.href = scenario.url;
+    goStatus.hidden = false;
+    goFail.hidden = true;
     // restart the progress animation
     const bar = goOverlay.querySelector(".progress i");
     bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
     openOverlay(goOverlay);
     goLink.focus({ preventScroll: true });
     clearTimeout(redirectTimer);
+    clearTimeout(failTimer);
     redirectTimer = setTimeout(() => {
-      // If the browser blocks the pop-up, the fallback link stays available.
-      window.open(scenario.url, "_blank", "noopener");
-      closeOverlay(goOverlay);
+      // Same-tab navigation: mobile browsers block timed pop-up tabs, but allow this.
+      window.location.href = scenario.url;
+      // If we are still here shortly after, the jump failed: keep the modal and say so.
+      failTimer = setTimeout(() => {
+        goStatus.hidden = true;
+        goFail.hidden = false;
+      }, 2500);
     }, REDIRECT_DELAY);
   }
-  function cancelRedirect() {
-    clearTimeout(redirectTimer);
-    closeOverlay(goOverlay);
-  }
+
+  // Coming back with the Back button: close the modal.
+  window.addEventListener("pageshow", (e) => { if (e.persisted) hideGo(); });
 
   cardsEl.addEventListener("click", (e) => {
     const card = e.target.closest(".card");
@@ -487,9 +505,9 @@
     e.preventDefault();
     startRedirect(SCENARIOS[Number(card.dataset.index)]);
   });
-  document.getElementById("goCancel").addEventListener("click", cancelRedirect);
-  goLink.addEventListener("click", () => { clearTimeout(redirectTimer); setTimeout(() => closeOverlay(goOverlay), 300); });
-  goOverlay.addEventListener("click", (e) => { if (e.target === goOverlay) cancelRedirect(); });
+  document.getElementById("goCancel").addEventListener("click", hideGo);
+  goLink.addEventListener("click", () => { clearTimeout(redirectTimer); clearTimeout(failTimer); });
+  goOverlay.addEventListener("click", (e) => { if (e.target === goOverlay) hideGo(); });
 
   // ---------- About modal ----------
   const aboutOverlay = document.getElementById("aboutOverlay");
@@ -502,7 +520,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (goOverlay.classList.contains("open")) cancelRedirect();
+    if (goOverlay.classList.contains("open")) hideGo();
     else if (aboutOverlay.classList.contains("open")) closeOverlay(aboutOverlay);
   });
 </script>
